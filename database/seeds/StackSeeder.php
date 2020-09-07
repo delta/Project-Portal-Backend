@@ -11,6 +11,6 @@ class StackSeeder extends Seeder
      */
     public function run()
     {
-        factory(App\Stack::class, 20)->create();
+        factory(App\Models\Stack::class, 20)->create();
     }
 }

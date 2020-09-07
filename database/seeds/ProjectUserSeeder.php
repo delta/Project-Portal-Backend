@@ -11,20 +11,20 @@ class ProjectUserSeeder extends Seeder
      */
     public function run()
     {
-        $projects = App\Project::all();
-        App\User::all()->each(function ($user) use ($projects) {
+        $projects = App\Models\Project::all();
+        App\Models\User::all()->each(function ($user) use ($projects) {
             $user->projects()->attach(
                 $projects->random(rand(0, 2))->pluck('id')->toArray(),
                 ['role' => 'DEVELOPER']
             );
         });
-        App\User::all()->each(function ($user) use ($projects) {
+        App\Models\User::all()->each(function ($user) use ($projects) {
             $user->projects()->attach(
                 $projects->random(rand(0, 1))->pluck('id')->toArray(),
                 ['role' => 'MAINTAINER']
             );
         });
-        App\User::all()->each(function ($user) use ($projects) {
+        App\Models\User::all()->each(function ($user) use ($projects) {
             $user->projects()->attach(
                 $projects->random(rand(0, 1))->pluck('id')->toArray(),
                 ['role' => 'AUTHOR']

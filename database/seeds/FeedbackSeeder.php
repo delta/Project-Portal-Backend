@@ -11,9 +11,9 @@ class FeedbackSeeder extends Seeder
      */
     public function run()
     {
-        App\Project::All()->each(function ($project) {
+        App\Models\Project::All()->each(function ($project) {
             $project->feedbacks()->saveMany(
-                factory(App\Feedback::class, rand(3, 10))->create(['project_id' => $project->id])
+                factory(App\Models\Feedback::class, rand(3, 10))->create(['project_id' => $project->id])
             );
         });
     }

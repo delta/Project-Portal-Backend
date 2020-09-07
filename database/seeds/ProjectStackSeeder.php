@@ -11,8 +11,8 @@ class ProjectStackSeeder extends Seeder
      */
     public function run()
     {
-        $stacks = App\Stack::all();
-        App\Project::all()->each(function ($project) use ($stacks) {
+        $stacks = App\Models\Stack::all();
+        App\Models\Project::all()->each(function ($project) use ($stacks) {
             $project->stacks()->attach(
                 $stacks->random(rand(1, 2))->pluck('id')->toArray()
             );
