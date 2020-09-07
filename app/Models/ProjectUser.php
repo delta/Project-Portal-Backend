@@ -1,10 +1,10 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProjectUser extends Model 
+class ProjectUser extends Model
 {
 
     protected $table = 'project_user';

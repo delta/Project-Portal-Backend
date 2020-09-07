@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,27 +12,27 @@ class Project extends Model
 
     public function stacks()
     {
-        return $this->belongsToMany('App\Stack');
+        return $this->belongsToMany('App\Models\Stack');
     }
 
     public function status()
     {
-        return $this->belongsTo('App\Status');
+        return $this->belongsTo('App\Models\Status');
     }
 
     public function feedbacks()
     {
-        return $this->hasMany('App\Feedback');
+        return $this->hasMany('App\Models\Feedback');
     }
 
     public function type()
     {
-        return $this->belongsTo('App\Type');
+        return $this->belongsTo('App\Models\Type');
     }
 
     public function users()
     {
-        return $this->belongsToMany('App\User')->withPivot('role');
+        return $this->belongsToMany('App\Models\User')->withPivot('role');
     }
 
 }
