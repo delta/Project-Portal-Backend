@@ -1,5 +1,10 @@
 <?php
 
+namespace Database\Seeders;
+
+use App\Models\Project;
+use App\Models\Stack;
+
 use Illuminate\Database\Seeder;
 
 class ProjectStackSeeder extends Seeder
@@ -11,8 +16,8 @@ class ProjectStackSeeder extends Seeder
      */
     public function run()
     {
-        $stacks = App\Models\Stack::all();
-        App\Models\Project::all()->each(function ($project) use ($stacks) {
+        $stacks = Stack::all();
+        Project::all()->each(function ($project) use ($stacks) {
             $project->stacks()->attach(
                 $stacks->random(rand(1, 2))->pluck('id')->toArray()
             );

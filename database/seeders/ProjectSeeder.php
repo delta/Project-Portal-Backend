@@ -1,5 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
+use App\Models\Project;
+
 use Illuminate\Database\Seeder;
 
 class ProjectSeeder extends Seeder
@@ -11,6 +15,6 @@ class ProjectSeeder extends Seeder
      */
     public function run()
     {
-        factory(App\Models\Project::class, 100)->create();
+        Project::factory()->count(100)->create();
     }
 }

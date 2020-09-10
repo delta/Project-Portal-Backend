@@ -1,8 +1,12 @@
 <?php
 
+namespace Database\Seeders;
+
+use App\Models\Stack;
+
 use Illuminate\Database\Seeder;
 
-class UserSeeder extends Seeder
+class StackSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,6 +15,6 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        factory(App\Models\User::class, 200)->create();
+        Stack::factory()->count(20)->create();
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 
 class TypeSeeder extends Seeder
@@ -11,8 +13,8 @@ class TypeSeeder extends Seeder
      */
     public function run()
     {
-        if (DB::table('types')->count() === 0) {
-            DB::table('types')->insert([
+        if (\DB::table('types')->count() === 0) {
+            \DB::table('types')->insert([
                 array('name' => 'ADMIN'),
                 array('name' => 'PERSONAL'),
                 array('name' => 'DWOC'),

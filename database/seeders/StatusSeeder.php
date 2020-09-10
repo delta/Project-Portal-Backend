@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 
 class StatusSeeder extends Seeder
@@ -11,8 +13,8 @@ class StatusSeeder extends Seeder
      */
     public function run()
     {
-        if (DB::table('statuses')->count() === 0) {
-            DB::table('statuses')->insert([
+        if (\DB::table('statuses')->count() === 0) {
+            \DB::table('statuses')->insert([
                 ['name' => 'PROPOSED'],
                 ['name' => 'ONGOING'],
                 ['name' => 'PAUSED'],

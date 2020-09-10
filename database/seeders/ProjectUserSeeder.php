@@ -1,5 +1,10 @@
 <?php
 
+namespace Database\Seeders;
+
+use App\Models\Project;
+use App\Models\User;
+
 use Illuminate\Database\Seeder;
 
 class ProjectUserSeeder extends Seeder
@@ -11,20 +16,20 @@ class ProjectUserSeeder extends Seeder
      */
     public function run()
     {
-        $projects = App\Models\Project::all();
-        App\Models\User::all()->each(function ($user) use ($projects) {
+        $projects = Project::all();
+        User::all()->each(function ($user) use ($projects) {
             $user->projects()->attach(
                 $projects->random(rand(0, 2))->pluck('id')->toArray(),
                 ['role' => 'DEVELOPER']
             );
         });
-        App\Models\User::all()->each(function ($user) use ($projects) {
+        User::all()->each(function ($user) use ($projects) {
             $user->projects()->attach(
                 $projects->random(rand(0, 1))->pluck('id')->toArray(),
                 ['role' => 'MAINTAINER']
             );
         });
-        App\Models\User::all()->each(function ($user) use ($projects) {
+        User::all()->each(function ($user) use ($projects) {
             $user->projects()->attach(
                 $projects->random(rand(0, 1))->pluck('id')->toArray(),
                 ['role' => 'AUTHOR']
