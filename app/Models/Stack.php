@@ -8,6 +8,7 @@ class Stack extends Model
 {
 
     protected $table = 'stacks';
+    protected $hidden = ['pivot'];
     public $timestamps = false;
 
     public function projects()
