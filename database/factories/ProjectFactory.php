@@ -1,20 +1,27 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
 use App\Models\Project;
-use Faker\Generator as Faker;
-use Illuminate\Support\Facades\DB;
+use App\Models\Type;
+use App\Models\Status;
 
-$factory->define(Project::class, function (Faker $faker) {
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class ProjectFactory extends Factory {
+
+    protected $model = Project::class;
+
+    public function definition() {
     return [
-        'name' => $faker->firstName,
-        'description' => $faker->text,
-        'type_id' => App\Models\Type::inRandomOrder()->value('id'),
-        'status_id' => App\Models\Status::inRandomOrder()->value('id'),
-        'repo_link' => 'github.com/'.$faker->firstName,
-        'max_member_count' => $faker->numberBetween(1, 10),
-        'deadline' => $faker->dateTimeThisYear,
-        'review' => $faker->text
+        'name' => $this->faker->firstName,
+        'description' => $this->faker->text,
+        'type_id' => Type::inRandomOrder()->value('id'),
+        'status_id' => Status::inRandomOrder()->value('id'),
+        'repo_link' => 'github.com/'.$this->faker->firstName,
+        'max_member_count' => $this->faker->numberBetween(1, 10),
+        'deadline' => $this->faker->dateTimeThisYear,
+        'review' => $this->faker->text
     ];
-});
+}
+}

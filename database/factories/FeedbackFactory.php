@@ -1,17 +1,25 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
 use App\Models\Feedback;
-use Faker\Generator as Faker;
+use App\Models\User;
 
-$factory->define(Feedback::class, function (Faker $faker) {
-    return [
-        'project_id' => function() {
-            return factory(App\Models\User::class)->create()->id;
-        },
-        'sender_id' => App\Models\User::inRandomOrder()->value('id'),
-        'receiver_id' => App\Models\User::inRandomOrder()->value('id'),
-        'content' => $faker->text
-    ];
-});
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class FeedbackFactory extends Factory
+{
+    protected $model = Feedback::class;
+
+    public function definition()
+    {
+        return [
+            'project_id' => function () {
+                return User::factory()->make()->id;
+            },
+            'sender_id' => User::inRandomOrder()->value('id'),
+            'receiver_id' => User::inRandomOrder()->value('id'),
+            'content' => $this->faker->text
+        ];
+    }
+}

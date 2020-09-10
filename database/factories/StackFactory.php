@@ -1,12 +1,19 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
 use App\Models\Stack;
-use Faker\Generator as Faker;
 
-$factory->define(Stack::class, function (Faker $faker) {
-    return [
-        'name' => $faker->firstName
-    ];
-});
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class StackFactory extends Factory
+{
+    protected $model = Stack::class;
+
+    public function definition()
+    {
+        return [
+            'name' => $this->faker->firstName
+        ];
+    }
+}
