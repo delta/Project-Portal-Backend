@@ -6,11 +6,12 @@ use App\Models\User;
 use Faker\Generator as Faker;
 
 $factory->define(User::class, function (Faker $faker) {
+    $rollNumber = $faker->unique()->numberBetween(100000000, 109999999);
     return [
-        'roll_number' => $faker->unique()->numberBetween(100000000, 109999999),
+        'roll_number' => $rollNumber,
         'name' => $faker->name,
-        'email' => $faker->name.'@gmail.com',
-        'password' => bcrypt($faker->firstName),
-        'github_handle' => 'github.com/'.$faker->firstName
+        'email' => $faker->safeEmail,
+        'password' => bcrypt($rollNumber),
+        'github_handle' => $faker->firstName
     ];
 });
