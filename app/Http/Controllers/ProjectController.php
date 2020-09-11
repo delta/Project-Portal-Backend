@@ -15,21 +15,16 @@ class ProjectController extends Controller
      */
     public function all(Request $request)
     {
-        /**
-         * @todo: Uncomment after creating auth middleware
         $userId = $request->user()->id;
-         */
+
         return response()->json([
             'message' => 'Success!',
             'data' => [
                 'projects' => Project::with([
-                    /**
-                     * @todo: Uncomment after creating auth middleware
                     'feedbacks' => function ($feedback) use ($userId) {
                         $feedback->where('sender_id', $userId)
                             ->orWhere('receiver_id', $userId);
-                    }
-                     */
+                    },
                     'stacks',
                     'status',
                     'users',
@@ -48,10 +43,8 @@ class ProjectController extends Controller
      */
     public function show(Request $request, $projectId)
     {
-        /**
-         * @todo: Uncomment after creating auth middleware
         $userId = $request->user()->id;
-         */
+
         try {
             Project::findOrFail($projectId);
         } catch (\Exception $e) {
@@ -63,13 +56,10 @@ class ProjectController extends Controller
             'message' => 'Success!',
             'data' => [
                 'project' => Project::where('id', $projectId)->with([
-                    /**
-                     * @todo: Uncomment after creating auth middleware
                     'feedbacks' => function ($feedback) use ($userId) {
                         $feedback->where('sender_id', $userId)
                             ->orWhere('receiver_id', $userId);
                     },
-                     */
                     'stacks',
                     'status',
                     'users',
