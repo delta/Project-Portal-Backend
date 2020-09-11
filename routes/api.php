@@ -8,6 +8,7 @@ Route::post('auth/login/', 'AuthController@login');
 Route::post('auth/register/', 'AuthController@register');
 
 //dashboard
+Route::get('dashboard/', 'DashboardController@show')->middleware('auth:api');
 
 //project
 Route::prefix('projects')->middleware('auth:api')->group(function () {
