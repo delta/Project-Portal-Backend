@@ -262,18 +262,19 @@ class ProjectController extends Controller
         \DB::transaction(function () use ($project, $projectId) {
 
             $project->users()->each(function ($user) use ($projectId) {
-                $user->projects()->detach($projectId);
-                $user->save();
+                $user->projects()->syncWithoutDetaching([
+                    $projectId =>
+                        ['deleted_at' => \DB::raw('NOW()')]
+                ]);
             });
             $project->stacks()->each(function ($stack) use ($projectId) {
-                $stack->projects()->detach($projectId);
-                $stack->save();
+                $stack->projects()->syncWithoutDetaching([
+                    $projectId =>
+                        ['deleted_at' => \DB::raw('NOW()')]
+                ]);
             });
-            $project->feedbacks()->delete();
-            $project->status()->dissociate();
-            $project->type()->dissociate();
 
-            Project::destroy($projectId);
+            $project->delete();
 
         });
 
