@@ -49,7 +49,7 @@ class ProjectController extends Controller
             Project::findOrFail($projectId);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Project doesn\'t exist!'
+                'message' => 'Project doesn\'t exist!'
             ], 404);
         }
         return response()->json([
@@ -152,7 +152,7 @@ class ProjectController extends Controller
             $project = Project::findOrFail($projectId);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Project doesn\'t exist!'
+                'message' => 'Project doesn\'t exist!'
             ], 404);
         }
 
@@ -163,7 +163,7 @@ class ProjectController extends Controller
             })->get()
             ->contains($user->id)) {
             return response()->json([
-                'error' => 'You are not allowed to edit this project!'
+                'message' => 'You are not allowed to edit this project!'
             ], 403);
         }
 
@@ -236,7 +236,7 @@ class ProjectController extends Controller
             $project = Project::findOrFail($projectId);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Project doesn\'t exist!'
+                'message' => 'Project doesn\'t exist!'
             ], 404);
         }
 
@@ -245,7 +245,7 @@ class ProjectController extends Controller
             ->get()
             ->contains($user->id)) {
             return response()->json([
-                'error' => 'You are not allowed to delete this project!'
+                'message' => 'You are not allowed to delete this project!'
             ], 403);
         }
 
