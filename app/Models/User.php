@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -11,6 +12,7 @@ class User extends Authenticatable
 {
 
     use Notifiable, HasApiTokens;
+    use SoftDeletes;
 
     protected $table = 'users';
     protected $hidden = ['email', 'password'];
@@ -19,6 +21,8 @@ class User extends Authenticatable
 
     public function projects()
     {
-        return $this->belongsToMany('App\Models\Project')->withPivot('role');
+        return $this->belongsToMany('App\Models\Project')
+                    ->withPivot('role')
+                    ->whereNull('project_user.deleted_at');
     }
 }

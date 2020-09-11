@@ -9,7 +9,8 @@ class CreateProjectStackTable extends Migration {
 	{
 		Schema::create('project_stack', function(Blueprint $table) {
 			$table->integer('project_id')->unsigned();
-			$table->integer('stack_id')->unsigned();
+            $table->integer('stack_id')->unsigned();
+            $table->softDeletes();
 		});
 	}
 

@@ -13,7 +13,8 @@ class CreateUsersTable extends Migration {
 			$table->string('email')->unique();
 			$table->string('password', 255);
 			$table->string('name', 255);
-			$table->string('github_handle', 255);
+            $table->string('github_handle', 255);
+            $table->softDeletes();
 			$table->timestamps();
 		});
 	}

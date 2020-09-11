@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
+    use SoftDeletes;
 
     protected $table = 'projects';
     protected $hidden = ['pivot', 'type_id', 'status_id'];
@@ -13,7 +15,8 @@ class Project extends Model
 
     public function stacks()
     {
-        return $this->belongsToMany('App\Models\Stack');
+        return $this->belongsToMany('App\Models\Stack')
+                    ->whereNull('project_stack.deleted_at');
     }
 
     public function status()
@@ -33,7 +36,9 @@ class Project extends Model
 
     public function users()
     {
-        return $this->belongsToMany('App\Models\User')->withPivot('role');
+        return $this->belongsToMany('App\Models\User')
+                    ->withPivot('role')
+                    ->whereNull('project_user.deleted_at');
     }
 
 }
