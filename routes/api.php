@@ -20,9 +20,9 @@ Route::prefix('projects')->middleware('auth:api')->group(function () {
 
 //filters
 Route::prefix('projects')->middleware('auth:api')->group(function () {
-    Route::get('filterbyuser/{user_id}/', 'ProjectController@user_filter');
-    Route::get('filterbystack/{stack_id}/', 'ProjectController@stack_filter');
-    Route::get('filterbytype/{type_id}/', 'ProjectController@type_filter');
+    Route::get('filter/user/{user_id}/', 'ProjectController@user_filter');
+    Route::get('filter/stack/{stack_id}/', 'ProjectController@stack_filter');
+    Route::get('filter/type/{type_id}/', 'ProjectController@type_filter');
 });
 
 

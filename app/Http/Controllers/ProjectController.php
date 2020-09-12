@@ -324,14 +324,14 @@ class ProjectController extends Controller
 
     public function type_filter($type_id)
     {
-        $type_project = DB::table('projects')->where([
+        $projects = DB::table('projects')->where([
             ['type_id', '=' , $type_id]
         ])->get();
         
 
         if (Type::find($type_id)) {
-            if (count($type_project) != 0) {
-                return $type_project;
+            if (count($projects) != 0) {
+                return $projects;
             }else{
                 return response()->json(['message' => 'No Project of this Type'], 404);
             }
