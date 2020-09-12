@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Project;
+use App\Models\User;
+use App\Models\Stack;
+use App\Models\Type;
+use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
@@ -272,5 +276,67 @@ class ProjectController extends Controller
             'message' => 'Project successfully deleted'
         ], 200);
 
+    }
+
+    public function user_filter($user_id)
+    {
+        $user_project = DB::table('project_user')->where([
+            ['user_id','=' ,$user_id]
+        ])->get();
+    
+        $projects = [];
+
+        if (User::find($user_id)) {
+            if (count($user_project) != 0) {
+                foreach ($user_project as $single_project) {
+                    array_push($projects, Project::find($single_project->project_id)); 
+                }
+                return $projects;
+            }else{
+                return response()->json(['message' => 'User has no Project involvement'], 404);
+            }
+        }else{
+            return response()->json(['message' => 'User not Found'], 404);
+        }
+    }
+
+    public function stack_filter($stack_id)
+    {
+        $stack_project = DB::table('project_stack')->where([
+            ['stack_id', '=' , $stack_id]
+        ])->get();
+        
+        $projects = [];
+
+        if (Stack::find($stack_id)) {
+            if (count($stack_project) != 0) {
+                foreach ($stack_project as $single_project) {
+                    array_push($projects, Project::find($single_project->project_id)); 
+                }
+                return $projects;
+            }else{
+                return response()->json(['message' => 'No Project of this Stack'], 404);
+            }
+        } else {
+            return response()->json(['message' => 'Stack not Found'], 404);
+        }
+    }
+
+    public function type_filter($type_id)
+    {
+        $type_project = DB::table('projects')->where([
+            ['type_id', '=' , $type_id]
+        ])->get();
+        
+
+        if (Type::find($type_id)) {
+            if (count($type_project) != 0) {
+                return $type_project;
+            }else{
+                return response()->json(['message' => 'No Project of this Type'], 404);
+            }
+        } else {
+            return response()->json(['message' => 'Type not Found'], 404);
+        }
     }
 }

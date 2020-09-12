@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 //auth
@@ -20,11 +19,17 @@ Route::prefix('projects')->middleware('auth:api')->group(function () {
 });
 
 //filters
+Route::prefix('projects')->middleware('auth:api')->group(function () {
+    Route::get('filterbyuser/{user_id}/', 'ProjectController@user_filter');
+    Route::get('filterbystack/{stack_id}/', 'ProjectController@stack_filter');
+    Route::get('filterbytype/{type_id}/', 'ProjectController@type_filter');
+});
+
 
 //feedback
-Route::middleware('auth:api')->group(function (){
-    Route::get('/projects/{project_id}/feedback/get/', 'FeedbackController@index');
-    Route::post('/projects/{project_id}/feedback/add/', 'FeedbackController@add');
-    Route::post('/projects/{project_id}/feedback/edit/', 'FeedbackController@edit');
-    Route::post('/projects/{project_id}/review/', 'FeedbackController@review');
+Route::prefix('projects')->middleware('auth:api')->group(function (){
+    Route::get('{project_id}/feedback/get/', 'FeedbackController@index');
+    Route::post('{project_id}/feedback/add/', 'FeedbackController@add');
+    Route::post('{project_id}/feedback/edit/', 'FeedbackController@edit');
+    Route::post('{project_id}/review/', 'FeedbackController@review');
 });
