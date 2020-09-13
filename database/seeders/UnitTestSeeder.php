@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Database\Factories\StackFactory;
 
 class UnitTestSeeder extends Seeder
 {
@@ -15,7 +16,8 @@ class UnitTestSeeder extends Seeder
     {
         $this->call([
             StatusSeeder::class,
-            TypeSeeder::class
+            TypeSeeder::class,
+            StackSeeder::class
         ]);
     }
 }
