@@ -253,13 +253,13 @@ class ProjectController extends Controller
             $project->users()->each(function ($user) use ($projectId) {
                 $user->projects()->syncWithoutDetaching([
                     $projectId =>
-                        ['deleted_at' => \DB::raw('NOW()')]
+                        ['deleted_at' => \DB::raw('CURRENT_TIMESTAMP')]
                 ]);
             });
             $project->stacks()->each(function ($stack) use ($projectId) {
                 $stack->projects()->syncWithoutDetaching([
                     $projectId =>
-                        ['deleted_at' => \DB::raw('NOW()')]
+                        ['deleted_at' => \DB::raw('CURRENT_TIMESTAMP')]
                 ]);
             });
 
