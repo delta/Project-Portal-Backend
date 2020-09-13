@@ -225,6 +225,7 @@ class ProjectController extends Controller
     /**
      * Remove the specified project from storage.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $projectId
      * @return \Illuminate\Http\Response
      */
@@ -268,7 +269,7 @@ class ProjectController extends Controller
         });
 
         return response()->json([
-            'message' => 'Project successfully deleted'
+            'message' => 'Project deleted successfully!'
         ], 200);
 
     }
