@@ -118,10 +118,10 @@ class ProjectController extends Controller
             $project->save();
 
             // Save many-to-many relations
-            $project->users()->syncWithoutDetaching(
-                $user,
+            $project->users()->syncWithoutDetaching([
+                $user->id =>
                 ['role' => 'AUTHOR']
-            );
+            ]);
             if (isset($data['users'])) {
                 foreach ($data['users'] as $projectUser) {
                     $project->users()->syncWithoutDetaching([
@@ -205,11 +205,6 @@ class ProjectController extends Controller
             $project->status()->associate($data['status']);
             $project->save();
 
-            // Save many-to-many relations
-            $project->users()->syncWithoutDetaching(
-                $user,
-                ['role' => 'AUTHOR']
-            );
             if (isset($data['users'])) {
                 foreach ($data['users'] as $projectUser) {
                     $project->users()->syncWithoutDetaching([
