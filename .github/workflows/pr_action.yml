@@ -7,22 +7,22 @@ on:
     - master
 
 jobs:
-  tests:
-    name: Running feature tests
+  laravel-tests:
+    name: Unit and Feature tests
+
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Installing Dependencies
-        uses: "docker://composer:latest"
-        with:
-          args: "composer install"
-      - run: cp .env.example .env
-      - name: Preparing Laravel
-        uses: "docker://php:latest"
-        with:
-          args: "php artisan key:generate"
-      - name: Testing 
-        uses: "docker://php:latest"
-        with:
-          args: "php artisan test"
+    - uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: composer install -q --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Copy env
+      run: cp .env.example .env
+    - name: Generate app key
+      run: php artisan key:generate
+    - name: Generate passport key
+      # workaround as passport:install generates error even if the keys are generated
+      run: |
+        ! php artisan passport:install 2>&1
+    - name: Run tests
+      run: php artisan test
