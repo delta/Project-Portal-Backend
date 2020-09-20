@@ -20,7 +20,6 @@ class User extends Authenticatable
 
     protected $table = 'users';
     protected $hidden = ['email', 'password'];
-    protected $fillable = ['name', 'email', 'password','roll_number','github_handle'];
     public $timestamps = true;
 
     public function projects()
