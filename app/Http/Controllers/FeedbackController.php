@@ -11,13 +11,20 @@ class FeedbackController extends Controller
 {
     public function index($project_id)
     {
+        try {
+            Project::findOrFail($project_id);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Project doesn\'t exist!'
+            ], 404);
+        }
         if (Project::find($project_id)) {
             $feedbacks_sent = Project::find($project_id)->feedbacks()->where('sender_id', auth()->user()->id)->get();
             $feedbacks_recieved = Project::find($project_id)->feedbacks()->where('receiver_id', auth()->user()->id)->get();
-        
+
             return response([
-                'message' => "Successfully fetched feedbacks", 
-                'feedback_sent' => $feedbacks_sent, 
+                'message' => "Successfully fetched feedbacks",
+                'feedback_sent' => $feedbacks_sent,
                 'feedback_received' => $feedbacks_recieved
             ]);
 
@@ -30,8 +37,20 @@ class FeedbackController extends Controller
 
     public function add($project_id, Request $request)
     {
+        try {
+            Project::findOrFail($project_id);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Project doesn\'t exist!'
+            ], 404);
+        }
+        $request->validate([
+            'receiver_id' => 'required|exists:users,id',
+            'content' => 'required|max:1000'
+        ]);
+
         if (count(DB::table('project_user')->where([
-            ['project_id', '=' ,$project_id], 
+            ['project_id', '=' ,$project_id],
             ['user_id', '=' ,auth()->user()->id]
             ])->get()) != 0){
             $feedback = new Feedback;
@@ -40,14 +59,14 @@ class FeedbackController extends Controller
             $feedback->sender_id = auth()->user()->id;
             $feedback->receiver_id = $request->receiver_id;
             $feedback->content = $request->content;
-                
+
             $feedback->save();
         } else{
             return response()->json([
                 'message' => 'Only Members of Project can add a Feedback'
-            ], 403);        
-        } 
-        
+            ], 403);
+        }
+
         return response()->json([
             'message' => 'Feedback added successfully'
         ], 200);
@@ -55,6 +74,10 @@ class FeedbackController extends Controller
 
     public function edit(Request $request)
     {
+        $request->validate([
+            'feedback_id' => 'required|exists:feedbacks,id',
+            'content' => 'required|max:1000'
+        ]);
         $feedback = Feedback::find($request->feedback_id);
 
         if ($feedback->sender_id == auth()->user()->id) {
@@ -63,19 +86,29 @@ class FeedbackController extends Controller
             $feedback->save();
             return response()->json([
                 'message' => 'Feedback edited successfully'
-            ], 200);         
+            ], 200);
 
         } else {
             return response()->json([
                 'message' => 'Only Creator of a Feedback can edit a Feedback'
             ], 403);
-        }        
+        }
     }
 
     public function review($project_id, Request $request)
     {
+        $request->validate([
+            'review' => 'required|max:1000'
+        ]);
+        try {
+            Project::findOrFail($project_id);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Project doesn\'t exist!'
+            ], 404);
+        }
         if (count(DB::table('project_user')->where([
-            ['project_id', '=' ,$project_id], 
+            ['project_id', '=' ,$project_id],
             ['user_id', '=' ,auth()->user()->id],
             ['role', '=' , 'MAINTAINER']
             ])->get()) != 0) {
@@ -86,6 +119,6 @@ class FeedbackController extends Controller
             return response()->json([
                 'message' => 'Only Maintainers of Project can Review'
             ], 403);
-        }            
+        }
     }
 }

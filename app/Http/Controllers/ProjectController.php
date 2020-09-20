@@ -126,7 +126,7 @@ class ProjectController extends Controller
                 foreach ($data['users'] as $projectUser) {
                     $project->users()->syncWithoutDetaching([
                         (int) $projectUser['id'] =>
-                            ['role' => $projectUser['role']]
+                        ['role' => $projectUser['role']]
                     ]);
                 }
             }
@@ -134,12 +134,18 @@ class ProjectController extends Controller
             $project->save();
         });
 
-        return response()->json([
-            'message' => 'Project created successfully!',
-            'data' => [
-                'project_id' => $project->id
-            ]
-        ], 200);
+        if ($project->exists) {
+            return response()->json([
+                'message' => 'Project created successfully!',
+                'data' => [
+                    'project_id' => $project->id
+                ]
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Project could not be created!'
+            ], 503);
+        }
     }
 
     /**
@@ -209,7 +215,7 @@ class ProjectController extends Controller
                 foreach ($data['users'] as $projectUser) {
                     $project->users()->syncWithoutDetaching([
                         $projectUser['id'] =>
-                            ['role' => $projectUser['role']]
+                        ['role' => $projectUser['role']]
                     ]);
                 }
             }
@@ -254,30 +260,34 @@ class ProjectController extends Controller
             $project->users()->each(function ($user) use ($projectId) {
                 $user->projects()->syncWithoutDetaching([
                     $projectId =>
-                        ['deleted_at' => \DB::raw('CURRENT_TIMESTAMP')]
+                    ['deleted_at' => \DB::raw('CURRENT_TIMESTAMP')]
                 ]);
             });
             $project->stacks()->each(function ($stack) use ($projectId) {
                 $stack->projects()->syncWithoutDetaching([
                     $projectId =>
-                        ['deleted_at' => \DB::raw('CURRENT_TIMESTAMP')]
+                    ['deleted_at' => \DB::raw('CURRENT_TIMESTAMP')]
                 ]);
             });
 
             $project->delete();
-
         });
 
-        return response()->json([
-            'message' => 'Project deleted successfully!'
-        ], 200);
-
+        if ($project->trashed()) {
+            return response()->json([
+                'message' => 'Project deleted successfully!'
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Project could not be deleted!'
+            ], 503);
+        }
     }
 
     public function user_filter($user_id)
     {
         $user_project = DB::table('project_user')->where([
-            ['user_id','=' ,$user_id]
+            ['user_id', '=', $user_id]
         ])->get();
 
         $projects = [];
@@ -288,10 +298,10 @@ class ProjectController extends Controller
                     array_push($projects, Project::find($single_project->project_id));
                 }
                 return $projects;
-            }else{
+            } else {
                 return response()->json(['message' => 'User has no Project involvement'], 404);
             }
-        }else{
+        } else {
             return response()->json(['message' => 'User not Found'], 404);
         }
     }
@@ -299,7 +309,7 @@ class ProjectController extends Controller
     public function stack_filter($stack_id)
     {
         $stack_project = DB::table('project_stack')->where([
-            ['stack_id', '=' , $stack_id]
+            ['stack_id', '=', $stack_id]
         ])->get();
 
         $projects = [];
@@ -310,7 +320,7 @@ class ProjectController extends Controller
                     array_push($projects, Project::find($single_project->project_id));
                 }
                 return $projects;
-            }else{
+            } else {
                 return response()->json(['message' => 'No Project of this Stack'], 404);
             }
         } else {
@@ -321,14 +331,14 @@ class ProjectController extends Controller
     public function type_filter($type_id)
     {
         $projects = DB::table('projects')->where([
-            ['type_id', '=' , $type_id]
+            ['type_id', '=', $type_id]
         ])->get();
 
 
         if (Type::find($type_id)) {
             if (count($projects) != 0) {
                 return $projects;
-            }else{
+            } else {
                 return response()->json(['message' => 'No Project of this Type'], 404);
             }
         } else {
@@ -345,7 +355,7 @@ class ProjectController extends Controller
     public function addStack(Request $request)
     {
         $data = $request->validate([
-            'name' => 'max:255|unique:stacks,name'
+            'name' => 'required|max:255|unique:stacks,name'
         ]);
         $stack = new Stack;
         $stack->name = $data['name'];
@@ -354,8 +364,14 @@ class ProjectController extends Controller
             $stack->save();
         });
 
-        return response()->json([
-            'message' => 'Stack added successfully!'
-        ], 200);
+        if ($stack->exists) {
+            return response()->json([
+                'message' => 'Stack added successfully!'
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Stack could not be created!'
+            ], 503);
+        }
     }
 }
