@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Models\Project;
+
 class DashboardController extends Controller
 {
     /**
@@ -12,12 +14,13 @@ class DashboardController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request) {
+    public function show(Request $request)
+    {
         $user = $request->user();
         $user['projects'] = $user->projects()->with([
             'feedbacks' => function ($feedback) use ($user) {
                 $feedback->where('sender_id', $user)
-                         ->orWhere('receiver_id', $user);
+                    ->orWhere('receiver_id', $user);
             },
             'stacks',
             'status',
@@ -26,7 +29,19 @@ class DashboardController extends Controller
         ])->get();
         return response()->json([
             "message" => "Success!",
-            "data" => $user
+            "data" => [
+                'user' => $user,
+                'open_projects' => Project::whereHas('status', function($query) {
+                    $query->where('name', 'ONGOING');
+                })->withCount('users')
+                ->with([
+                    'stacks',
+                    'status',
+                    'type'
+                ])->get()->filter(function ($project) {
+                    return $project->users_count < $project->max_member_count;
+                })
+            ]
         ], 200);
     }
 }
