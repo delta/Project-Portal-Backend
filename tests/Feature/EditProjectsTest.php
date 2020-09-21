@@ -19,7 +19,7 @@ class EditProjectsTest extends TestCase
         parent::setUp();
 
         $this->project = Project::factory()->create();
-        $this->users = User::factory()->count(3)->create();
+        $this->users = User::factory()->count(5)->create();
 
         $this->developer = $this->users[0];
         $this->maintainer = $this->users[1];
@@ -40,6 +40,36 @@ class EditProjectsTest extends TestCase
     {
         $this->post('api/projects/1/edit')
             ->assertStatus(401);
+    }
+
+    /** @test */
+    public function projects_can_be_edited()
+    {
+        $data = $this->project->toArray();
+        $data['stacks'] = [1, 2];
+        $data['status'] = 1;
+        $data['type'] = 1;
+        $data['deadline'] = null;
+
+        Passport::actingAs($this->maintainer);
+        $this->post(
+            'api/projects/1/edit',
+            $data
+        )->assertStatus(200)
+            ->assertJson([
+                'message' => 'Project edited successfully!'
+            ]);
+
+        $this->project->refresh();
+        $this->assertEquals(
+            1,
+            $this->project->type->id
+        );
+
+        $this->assertEquals(
+            1,
+            $this->project->status->id
+        );
     }
 
     /** @test */
@@ -87,5 +117,69 @@ class EditProjectsTest extends TestCase
             ->assertJson([
                 'message' => 'You are not allowed to edit this project!'
             ]);
+    }
+
+    /** @test */
+    public function users_can_be_added_to_project()
+    {
+        $data = $this->project->toArray();
+        $data['stacks'] = [1, 2];
+        $data['status'] = 1;
+        $data['type'] = 1;
+        $data['deadline'] = null;
+        $data['users'] = [
+            [
+                'id' => $this->users[3]->id,
+                'role' => 'DEVELOPER'
+            ],
+            [
+                'id' => $this->users[4]->id,
+                'role' => 'MAINTAINER'
+            ]
+        ];
+
+        Passport::actingAs($this->maintainer);
+        $this->post(
+            'api/projects/1/edit',
+            $data
+        )->assertStatus(200)
+            ->assertJson([
+                'message' => 'Project edited successfully!'
+            ]);
+
+        $this->assertCount(
+            5,
+            $this->project->users()->get()
+        );
+    }
+
+    /** @test */
+    public function users_roles_in_project_can_be_modified()
+    {
+        $data = $this->project->toArray();
+        $data['stacks'] = [1, 2];
+        $data['status'] = 1;
+        $data['type'] = 1;
+        $data['deadline'] = null;
+        $data['users'] = [
+            [
+                'id' => $this->developer->id,
+                'role' => 'MAINTAINER'
+            ],
+        ];
+
+        Passport::actingAs($this->maintainer);
+        $this->post(
+            'api/projects/1/edit',
+            $data
+        )#->assertStatus(200)
+            ->assertJson([
+                'message' => 'Project edited successfully!'
+            ]);
+
+        $this->assertCount(
+            2,
+            $this->project->users()->wherePivot('role', 'MAINTAINER')->get()
+        );
     }
 }
