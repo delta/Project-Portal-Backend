@@ -19,7 +19,7 @@ class User extends Authenticatable
     use SoftDeletes;
 
     protected $table = 'users';
-    protected $hidden = ['email', 'password'];
+    protected $hidden = ['pivot', 'email', 'password'];
     public $timestamps = true;
 
     public function projects()

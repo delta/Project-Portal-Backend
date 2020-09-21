@@ -31,9 +31,14 @@ class ProjectController extends Controller
                     },
                     'stacks',
                     'status',
-                    'users',
                     'type'
-                ])->get()
+                ])->get()->each(function ($project) {
+                    $project['users'] = [
+                        'authors' => $project->users()->wherePivot('role', 'AUTHOR')->get(),
+                        'maintainers' => $project->users()->wherePivot('role', 'MAINTAINER')->get(),
+                        'developers' => $project->users()->wherePivot('role', 'DEVELOPERS')->get()
+                    ];
+                })
             ]
         ], 200);
     }
@@ -66,9 +71,14 @@ class ProjectController extends Controller
                     },
                     'stacks',
                     'status',
-                    'users',
                     'type'
-                ])->get()
+                ])->get()->each(function ($project) {
+                    $project['users'] = [
+                        'authors' => $project->users()->wherePivot('role', 'AUTHOR')->get(),
+                        'maintainers' => $project->users()->wherePivot('role', 'MAINTAINER')->get(),
+                        'developers' => $project->users()->wherePivot('role', 'DEVELOPERS')->get()
+                    ];
+                })
             ]
         ], 200);
     }
