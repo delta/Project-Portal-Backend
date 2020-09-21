@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Feedback;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class FeedbackController extends Controller
@@ -30,8 +31,14 @@ class FeedbackController extends Controller
 
         $userId = $request->user()->id;
 
-        $feedbacksSent = $project->feedbacks()->where('sender_id', $userId)->get();
-        $feedbacksRecieved = $project->feedbacks()->where('receiver_id', $userId)->get();
+        $feedbacksSent = $project->feedbacks()
+            ->where('sender_id', $userId)->get()->each(function ($feedback) {
+                $feedback['receiver'] = User::find($feedback->receiver_id);
+            });
+        $feedbacksRecieved = $project->feedbacks()
+            ->where('receiver_id', $userId)->get()->each(function ($feedback) {
+                $feedback['sender'] = User::find($feedback->sender_id);
+            });
 
         return response([
             'message' => "Successfully fetched feedbacks",
