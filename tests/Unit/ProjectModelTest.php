@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Unit;
+
 use Tests\TestCase;
 
 use App\Models\Project;
@@ -20,7 +22,6 @@ class ProjectModelTest extends TestCase
     {
 
         parent::setUp();
-        Schema::disableForeignKeyConstraints();
 
         $this->project = Project::factory()->create();
         $this->users = User::factory()->count(4)->create();
@@ -92,17 +93,5 @@ class ProjectModelTest extends TestCase
             ])
         );
         $this->assertCount(3, $this->project->feedbacks()->get());
-    }
-
-    public function tearDown(): void
-    {
-
-        $this->users->each(function ($user) {
-            $user->delete();
-        });
-        $this->project->delete();
-
-        Schema::enableForeignKeyConstraints();
-        parent::tearDown();
     }
 }
