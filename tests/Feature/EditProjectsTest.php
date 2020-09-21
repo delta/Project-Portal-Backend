@@ -172,7 +172,7 @@ class EditProjectsTest extends TestCase
         $this->post(
             'api/projects/1/edit',
             $data
-        )#->assertStatus(200)
+        )->assertStatus(200)
             ->assertJson([
                 'message' => 'Project edited successfully!'
             ]);
