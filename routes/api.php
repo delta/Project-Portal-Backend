@@ -19,6 +19,12 @@ Route::prefix('projects')->middleware('auth:api')->group(function () {
     Route::post('addstack/', 'ProjectController@addStack');
 });
 
+//stacks
+Route::prefix('stacks')->middleware('auth:api')->group(function () {
+    Route::get('all/', 'StackController@all');
+    Route::post('add/', 'StackController@add');
+});
+
 //filters
 Route::prefix('projects')->middleware('auth:api')->group(function () {
     Route::get('filter/user/{user_id}/', 'ProjectController@user_filter');
