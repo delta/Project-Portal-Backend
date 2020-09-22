@@ -36,7 +36,7 @@ class ProjectController extends Controller
                     $project['users'] = [
                         'authors' => $project->users()->wherePivot('role', 'AUTHOR')->get(),
                         'maintainers' => $project->users()->wherePivot('role', 'MAINTAINER')->get(),
-                        'developers' => $project->users()->wherePivot('role', 'DEVELOPERS')->get()
+                        'developers' => $project->users()->wherePivot('role', 'DEVELOPER')->get()
                     ];
                 })
             ]
@@ -76,7 +76,7 @@ class ProjectController extends Controller
                     $project['users'] = [
                         'authors' => $project->users()->wherePivot('role', 'AUTHOR')->get(),
                         'maintainers' => $project->users()->wherePivot('role', 'MAINTAINER')->get(),
-                        'developers' => $project->users()->wherePivot('role', 'DEVELOPERS')->get()
+                        'developers' => $project->users()->wherePivot('role', 'DEVELOPER')->get()
                     ];
                 })
             ]
