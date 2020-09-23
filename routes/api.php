@@ -16,7 +16,6 @@ Route::prefix('projects')->middleware('auth:api')->group(function () {
     Route::post('add/', 'ProjectController@add');
     Route::post('{project_id}/edit/', 'ProjectController@edit');
     Route::post('{project_id}/delete/', 'ProjectController@delete');
-    Route::post('addstack/', 'ProjectController@addStack');
 });
 
 //stacks
