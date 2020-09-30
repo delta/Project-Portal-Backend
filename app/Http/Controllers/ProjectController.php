@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Project;
-use App\Models\User;
-use App\Models\Stack;
-use App\Models\Type;
-use Illuminate\Support\Facades\DB;
+use App\Models\ProjectUser;
+use App\Models\ProjectStack;
 
 class ProjectController extends Controller
 {
@@ -296,72 +294,46 @@ class ProjectController extends Controller
 
     public function user_filter($user_id)
     {
-        $data = Project::with([
-                    'users',
-                    'stacks',
-                    'status',
-                    'type'
-                ])->get()->toArray();
-
-        $filter = array_filter($data, function($project) use($user_id){
-            $flag = false;
-            foreach ($project['users'] as $value){
-                if ($value['id'] == $user_id){
-                    $flag = !$flag;
-                    break;
-                }
-            }
-            return $flag;
-        });
-
         return response()->json([
             'message' => 'Success!',
-            'data' => array_values($filter)
+            'data' => [
+                'projects' => Project::whereIn('id', ProjectUser::where('user_id', $user_id)->pluck('project_id'))->with([
+                'users', 
+                'stacks',
+                'status',
+                'type'
+                ])->get()
+            ]
         ], 200);
     }
 
     public function stack_filter($stack_id)
     {
-        $data = Project::with([
-                    'users',
-                    'stacks',
-                    'status',
-                    'type'
-                ])->get()->toArray();
-
-        $filter = array_filter($data, function($project) use($stack_id){
-            $flag = false;
-            foreach ($project['stacks'] as $value){
-                if ($value['id'] == $stack_id){
-                    $flag = !$flag;
-                    break;
-                }
-            }
-            return $flag;
-        });
-
         return response()->json([
             'message' => 'Success!',
-            'data' => array_values($filter)
+            'data' => [
+                'projects' => Project::whereIn('id', ProjectStack::where('stack_id', $stack_id)->pluck('project_id'))->with([
+                'users', 
+                'stacks',
+                'status',
+                'type'
+                ])->get()
+            ]
         ], 200);
     }
 
     public function type_filter($type_id)
     {
-        $data = Project::with([
-                    'users',
-                    'stacks',
-                    'status',
-                    'type'
-                ])->get()->toArray();
-
-        $filter = array_filter($data, function($project) use($type_id){
-            return $project['type']['id'] == $type_id;
-        });
-
         return response()->json([
             'message' => 'Success!',
-            'data' => array_values($filter)
+            'data' => [
+                'projects' => Project::where('type_id', $type_id)->with([
+                'users', 
+                'stacks',
+                'status',
+                'type'
+                ])->get()
+            ]
         ], 200);
     }
 }
