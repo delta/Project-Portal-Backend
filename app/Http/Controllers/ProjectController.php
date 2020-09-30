@@ -295,10 +295,10 @@ class ProjectController extends Controller
 
     public function user_filter($user_id)
     {
-        $filter = User::where('id', $user_id)->with('projects.users',
+        $filter = User::where('id', $user_id)->with(
          'projects.stacks',
          'projects.type', 
-         'projects.status')->get();
+         'projects.status')->get('id');
 
         return response()->json([
             'message' => 'Success!',
@@ -310,10 +310,10 @@ class ProjectController extends Controller
 
     public function stack_filter($stack_id)
     {
-        $filter = Stack::where('id', $stack_id)->with('projects.users',
+        $filter = Stack::where('id', $stack_id)->with(
          'projects.stacks',
          'projects.type', 
-         'projects.status')->get();
+         'projects.status')->get('id');
 
         return response()->json([
             'message' => 'Success!',
@@ -325,10 +325,10 @@ class ProjectController extends Controller
 
     public function type_filter($type_id)
     {
-        $filter = Type::where('id', $type_id)->with('projects.users',
+        $filter = Type::where('id', $type_id)->with(
          'projects.stacks',
          'projects.type', 
-         'projects.status')->get();
+         'projects.status')->get('id');
 
         return response()->json([
             'message' => 'Success!',
