@@ -308,6 +308,7 @@ class ProjectController extends Controller
             foreach ($project['users'] as $value){
                 if ($value['id'] == $user_id){
                     $flag = !$flag;
+                    break;
                 }
             }
             return $flag;
@@ -333,6 +334,7 @@ class ProjectController extends Controller
             foreach ($project['stacks'] as $value){
                 if ($value['id'] == $stack_id){
                     $flag = !$flag;
+                    break;
                 }
             }
             return $flag;
