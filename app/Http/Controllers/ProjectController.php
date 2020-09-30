@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Project;
-use App\Models\ProjectUser;
-use App\Models\ProjectStack;
+use App\Models\User;
+use App\Models\Stack;
+use App\Models\Type;
 
 class ProjectController extends Controller
 {
@@ -294,45 +295,45 @@ class ProjectController extends Controller
 
     public function user_filter($user_id)
     {
+        $filter = User::where('id', $user_id)->with('projects.users',
+         'projects.stacks',
+         'projects.type', 
+         'projects.status')->get();
+
         return response()->json([
             'message' => 'Success!',
             'data' => [
-                'projects' => Project::whereIn('id', ProjectUser::where('user_id', $user_id)->pluck('project_id'))->with([
-                'users', 
-                'stacks',
-                'status',
-                'type'
-                ])->get()
+                'filtered' => $filter
             ]
         ], 200);
     }
 
     public function stack_filter($stack_id)
     {
+        $filter = Stack::where('id', $stack_id)->with('projects.users',
+         'projects.stacks',
+         'projects.type', 
+         'projects.status')->get();
+
         return response()->json([
             'message' => 'Success!',
             'data' => [
-                'projects' => Project::whereIn('id', ProjectStack::where('stack_id', $stack_id)->pluck('project_id'))->with([
-                'users', 
-                'stacks',
-                'status',
-                'type'
-                ])->get()
+                'filtered' => $filter
             ]
         ], 200);
     }
 
     public function type_filter($type_id)
     {
+        $filter = Type::where('id', $type_id)->with('projects.users',
+         'projects.stacks',
+         'projects.type', 
+         'projects.status')->get();
+
         return response()->json([
             'message' => 'Success!',
             'data' => [
-                'projects' => Project::where('type_id', $type_id)->with([
-                'users', 
-                'stacks',
-                'status',
-                'type'
-                ])->get()
+                'filtered' => $filter
             ]
         ], 200);
     }
