@@ -56,10 +56,8 @@ class FetchProjectTest extends TestCase
                 'data' => [
                     'projects' => [
                         '*' =>  [
-                            'feedbacks',
                             'stacks',
                             'status',
-                            'users',
                             'type'
                         ]
                     ]

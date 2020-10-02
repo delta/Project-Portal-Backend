@@ -46,6 +46,7 @@ class EditProjectsTest extends TestCase
     public function projects_can_be_edited()
     {
         $data = $this->project->toArray();
+        $data['max_member_count'] = 3;
         $data['stacks'] = [1, 2];
         $data['status'] = 1;
         $data['type'] = 1;
@@ -76,6 +77,7 @@ class EditProjectsTest extends TestCase
     public function authors_and_maintainers_can_edit_their_project()
     {
         $data = $this->project->toArray();
+        $data['max_member_count'] = 3;
         $data['stacks'] = [1, 2];
         $data['status'] = 1;
         $data['type'] = 1;
@@ -104,6 +106,7 @@ class EditProjectsTest extends TestCase
     public function developers_cannot_edit_their_project()
     {
         $data = $this->project->toArray();
+        $data['max_member_count'] = 3;
         $data['stacks'] = [1, 2];
         $data['status'] = 1;
         $data['type'] = 1;
@@ -123,11 +126,20 @@ class EditProjectsTest extends TestCase
     public function users_can_be_added_to_project()
     {
         $data = $this->project->toArray();
+        $data['max_member_count'] = 5;
         $data['stacks'] = [1, 2];
         $data['status'] = 1;
         $data['type'] = 1;
         $data['deadline'] = null;
         $data['users'] = [
+            [
+                'id' => $this->developer->id,
+                'role' => 'DEVELOPER'
+            ],
+            [
+                'id' => $this->maintainer->id,
+                'role' => 'MAINTAINER'
+            ],
             [
                 'id' => $this->users[3]->id,
                 'role' => 'DEVELOPER'
@@ -135,7 +147,7 @@ class EditProjectsTest extends TestCase
             [
                 'id' => $this->users[4]->id,
                 'role' => 'MAINTAINER'
-            ]
+            ],
         ];
 
         Passport::actingAs($this->maintainer);
@@ -157,11 +169,16 @@ class EditProjectsTest extends TestCase
     public function users_roles_in_project_can_be_modified()
     {
         $data = $this->project->toArray();
+        $data['max_member_count'] = 3;
         $data['stacks'] = [1, 2];
         $data['status'] = 1;
         $data['type'] = 1;
         $data['deadline'] = null;
         $data['users'] = [
+            [
+                'id' => $this->maintainer->id,
+                'role' => 'MAINTAINER'
+            ],
             [
                 'id' => $this->developer->id,
                 'role' => 'MAINTAINER'
