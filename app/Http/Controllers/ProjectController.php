@@ -190,6 +190,17 @@ class ProjectController extends Controller
             'stacks.*' => 'exists:stacks,id'
         ]);
 
+        if (isset($data['users'])) {
+            if (count($data['users']) + $project->users()->wherePivot('role', 'AUTHOR')->count() > $data['max_member_count']) {
+                return response()->json([
+                    'message' => 'The given data was invalid.',
+                    'errors' => [
+                        'max_member_count' => 'Max member count is less than current user count'
+                    ]
+                ], 422);
+            }
+        }
+
         $project->name = $data['name'];
         $project->description = $data['description'];
         if (isset($data['deadline'])) {
