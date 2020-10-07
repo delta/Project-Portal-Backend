@@ -17,7 +17,7 @@ class AuthController extends Controller
             'email' => 'email|required|unique:users,email',
             'password' => 'required|confirmed',
             'roll_number' => 'required|integer|digits:9|unique:users,roll_number',
-            'github_handle' => 'max:255'
+            'github_handle' => 'required|max:255'
         ]);
 
         $user = new User;
@@ -46,7 +46,7 @@ class AuthController extends Controller
     {
 
         $loginData = $request->validate([
-            'roll_number' => 'required|digits:9|integer',
+            'roll_number' => 'required|integer',
             'password' => 'required'
         ]);
 
