@@ -134,9 +134,6 @@ class ProjectController extends Controller
         if ($project->exists) {
             return response()->json([
                 'message' => 'Project created successfully!',
-                'data' => [
-                    'project_id' => $project->id
-                ]
             ], 200);
         } else {
             return response()->json([

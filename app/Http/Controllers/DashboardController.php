@@ -53,6 +53,7 @@ class DashboardController extends Controller
             "data" => [
                 'user' => DB::table('users')->select('id', 'name')->get(),
                 'stack' => DB::table('stacks')->get(),
+                'status' => DB::table('statuses')->get(),
                 'type' => DB::table('types')->get(),
             ]
         ], 200);

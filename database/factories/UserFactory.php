@@ -18,7 +18,7 @@ class UserFactory extends Factory
             'name' => $this->faker->name,
             'email' => $this->faker->safeEmail,
             'password' => bcrypt($rollNumber),
-            'github_handle' => 'github.com/' . $this->faker->firstName
+            'github_handle' => $this->faker->firstName
         ];
     }
 }
