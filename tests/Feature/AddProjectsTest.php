@@ -48,9 +48,6 @@ class AddProjectsTest extends TestCase
         )->assertStatus(200)
             ->assertJson([
                 'message' => 'Project created successfully!',
-                'data' => [
-                    'project_id' => 2
-                ]
             ]);
     }
 
@@ -64,9 +61,6 @@ class AddProjectsTest extends TestCase
         )->assertStatus(200)
             ->assertJson([
                 'message' => 'Project created successfully!',
-                'data' => [
-                    'project_id' => 2
-                ]
             ]);
         $this->assertEquals(
             $this->users[0]->projects()->first()->pivot->role,
@@ -94,9 +88,6 @@ class AddProjectsTest extends TestCase
         )->assertStatus(200)
             ->assertJson([
                 'message' => 'Project created successfully!',
-                'data' => [
-                    'project_id' => 2
-                ]
             ]);
         $this->assertContains(
             2,
