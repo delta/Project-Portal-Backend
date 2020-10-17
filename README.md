@@ -1,4 +1,4 @@
-<p align="center"><h1>Project Portal Backend</h1></p>
+<h1><p align="center">Project Portal Backend</p></h1>
 
 <p align="center">
   <img src="https://github.com/delta/Project-Portal-Backend/workflows/test/badge.svg">
