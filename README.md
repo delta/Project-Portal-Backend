@@ -1,3 +1,9 @@
+<p align="center"><h1>Project Portal Backend</h1></p>
+
+<p align="center">
+  <img src="https://github.com/delta/Project-Portal-Backend/workflows/test/badge.svg">
+</p>
+
 ## Setup
 
 ### Prerequisites
@@ -17,3 +23,13 @@
 7. Run Migrations - `php artisan migrate`
 8. Run - `php artisan passport:install`
 9. Start the Server - `php artisan serve`
+
+### Running in docker
+
+1. Clone the repo
+2. Copy contents of `.env.example` to a new file `.env` : ` cp .env.example .env`.
+3. Set the credentials to the database in the file `.env` and make sure that `DB_HOST` is set to `db`.
+4. Run - `docker-compose build`
+5. Run - `docker-compose up`
+
+The server will run in port 8000 of the host
