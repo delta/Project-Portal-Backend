@@ -196,6 +196,17 @@ class ProjectController extends Controller
                     ]
                 ], 422);
             }
+            $projectAuthors = $project->users()->wherePivot('role', 'AUTHOR')->get();
+            foreach ($data['users'] as $user) {
+                if ($projectAuthors->contains($user['id'])) {
+                    return response()->json([
+                        'message' => 'The given data was invalid.',
+                        'errors' => [
+                            'users' => 'Author cannot take any other role'
+                        ]
+                    ], 422);
+                }
+            }
         }
 
         $project->name = $data['name'];

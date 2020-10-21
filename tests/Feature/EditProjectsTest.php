@@ -199,4 +199,33 @@ class EditProjectsTest extends TestCase
             $this->project->users()->wherePivot('role', 'MAINTAINER')->get()
         );
     }
+
+    /** @test */
+    public function author_cannot_have_any_other_role()
+    {
+        $data = $this->project->toArray();
+        $data['max_member_count'] = 3;
+        $data['stacks'] = [1, 2];
+        $data['status'] = 1;
+        $data['type'] = 1;
+        $data['deadline'] = null;
+        $data['users'] = [
+            [
+                'id' => $this->author->id,
+                'role' => 'MAINTAINER'
+            ],
+        ];
+
+        Passport::actingAs($this->maintainer);
+        $this->post(
+            'api/projects/1/edit',
+            $data
+        )->assertStatus(422)
+            ->assertJson([
+                'message' => 'The given data was invalid.',
+                'errors' => [
+                    'users' => 'Author cannot take any other role'
+                ]
+            ]);
+    }
 }
