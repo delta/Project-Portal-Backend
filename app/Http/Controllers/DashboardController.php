@@ -18,7 +18,9 @@ class DashboardController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
-        $user['projects'] = $user->projects()->with([
+        $user['projects'] = $user->projects()->whereHas('status', function($query) {
+            $query->where('name' , 'ONGOING');
+        })->with([
             'feedbacks' => function ($feedback) use ($user) {
                 $feedback->where('sender_id', $user)
                     ->orWhere('receiver_id', $user);
