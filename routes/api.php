@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 //auth
 Route::post('auth/login/', 'AuthController@login');
 Route::post('auth/register/', 'AuthController@register');
+Route::post('auth/forgot_password/', 'AuthController@forgot_password')->middleware('guest');
+Route::post('auth/reset_password/', 'AuthController@reset_password')->middleware('guest');
 
 //dashboard
 Route::get('dashboard/', 'DashboardController@show')->middleware('auth:api');

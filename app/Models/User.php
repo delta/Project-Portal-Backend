@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+use App\Notifications\ResetPasswordNotification;
 
 class User extends Authenticatable
 {
@@ -27,5 +28,12 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Project')
                     ->withPivot('role')
                     ->whereNull('project_user.deleted_at');
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $url = 'https://kitchen.delta.nitt.edu/reset_password?token='.$token;
+
+        $this->notify(new ResetPasswordNotification($this->name, $url));
     }
 }
