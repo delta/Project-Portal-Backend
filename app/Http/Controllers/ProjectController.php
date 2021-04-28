@@ -82,8 +82,8 @@ class ProjectController extends Controller
         $data = $request->validate([
             'name' => 'required|max:255',
             'description' => 'required',
-            'startdate' => 'date|date_format:Y-m-d H:i:s|before:enddate',
-            'enddate' => 'date|date_format:Y-m-d H:i:s',
+            'startdate' => 'nullable|date|date_format:Y-m-d H:i:s|before:enddate',
+            'enddate' => 'nullable|date|date_format:Y-m-d H:i:s',
             'max_member_count' => 'required|integer',
             'repo_link' => 'required|unique:projects,repo_link|url',
             'review' => 'nullable',
@@ -178,8 +178,8 @@ class ProjectController extends Controller
         $data = $request->validate([
             'name' => 'required|max:255',
             'description' => 'required|max:5000',
-            'startdate' => 'date|date_format:Y-m-d H:i:s|before:enddate',
-            'enddate' => 'date|date_format:Y-m-d H:i:s',
+            'startdate' => 'nullable|date|date_format:Y-m-d H:i:s|before:enddate',
+            'enddate' => 'nullable|date|date_format:Y-m-d H:i:s',
             'max_member_count' => 'required|integer|min:1|max:100',
             'repo_link' => 'required|unique:projects,repo_link,' . $projectId,
             'review' => 'nullable|max:1000',
