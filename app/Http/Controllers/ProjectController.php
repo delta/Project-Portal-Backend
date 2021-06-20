@@ -7,6 +7,9 @@ use App\Models\Project;
 use App\Models\User;
 use App\Models\Stack;
 use App\Models\Type;
+use Flowframe\DiscordWebhook\DiscordEmbed;
+use Flowframe\DiscordWebhook\DiscordField;
+use Flowframe\DiscordWebhook\DiscordWebhook;
 
 class ProjectController extends Controller
 {
@@ -136,6 +139,46 @@ class ProjectController extends Controller
         });
 
         if ($project->exists) {
+
+            if (app()->environment() !== 'testing') {
+                (new DiscordWebhook)
+                ->username('KITCHEN BOT')
+                ->avatar('https://avatars.githubusercontent.com/u/696668?s=200&v=4')
+                ->content('New Project created!')
+                ->embeds(
+                    // Argument list of Embed objects
+                    (new DiscordEmbed)
+                        ->title($project->name)
+                        ->description($project->description)
+                        ->date(now())
+                        ->color(44225)
+                        ->fields(
+                            (new DiscordField)
+                                ->name('Autor')
+                                ->value($project->users()->wherePivot('role', 'AUTHOR')->get()[0]['name'])
+                                ->inline(false),
+                            (new DiscordField)
+                                ->name('Maximum Member Count')
+                                ->value($project->max_member_count)
+                                ->inline(false),
+                            (new DiscordField)
+                                ->name('Status')
+                                ->value($project->status['name'])
+                                ->inline(false),
+                            (new DiscordField)
+                                ->name('Start')
+                                ->value($project->startdate)
+                                ->inline(true),
+                            (new DiscordField)
+                                ->name('End')
+                                ->value($project->enddate)
+                                ->inline(true),
+                        ),
+                )
+                // Send the message to the endpoint
+                ->send(to: env('DISCORD_WEBHOOK_URL'));
+            }
+
             return response()->json([
                 'message' => 'Project created successfully!',
             ], 200);
@@ -158,6 +201,7 @@ class ProjectController extends Controller
         $user = $request->user();
         try {
             $project = Project::findOrFail($projectId);
+            $statusOld = $project->status["id"];
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Project doesn\'t exist!'
@@ -255,6 +299,36 @@ class ProjectController extends Controller
             $project->stacks()->syncWithoutDetaching($data['stacks']);
             $project->save();
         });
+
+        if ($statusOld !== ($project->status["id"]) && app()->environment() !== 'testing') {
+            (new DiscordWebhook)
+            ->username('KITCHEN BOT')
+            ->avatar('https://avatars.githubusercontent.com/u/696668?s=200&v=4')
+            ->content('Project status updated !')
+            ->embeds(
+                // Argument list of Embed objects
+                (new DiscordEmbed)
+                    ->title($project->name)
+                    ->date(now())
+                    ->color(44225)
+                    ->fields(
+                        (new DiscordField)
+                            ->name('Status')
+                            ->value($project->status['name'])
+                            ->inline(false),
+                        (new DiscordField)
+                            ->name('Start')
+                            ->value($project->startdate)
+                            ->inline(true),
+                        (new DiscordField)
+                            ->name('End')
+                            ->value($project->enddate)
+                            ->inline(true),
+                    ),
+            )
+            // Send the message to the endpoint
+            ->send(to: env('DISCORD_WEBHOOK_URL'));
+        }
 
         return response()->json([
             'message' => 'Project edited successfully!'
