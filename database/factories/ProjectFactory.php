@@ -20,7 +20,7 @@ class ProjectFactory extends Factory {
         'type_id' => Type::inRandomOrder()->value('id'),
         'status_id' => Status::inRandomOrder()->value('id'),
         'repo_link' => 'https://github.com/'.$this->faker->firstName,
-        'max_member_count' => $this->faker->numberBetween(1, 10),
+        'max_member_count' => $this->faker->numberBetween(5, 10),
         'startdate' => $startdate,
         'enddate' => $this->faker->dateTimeBetween($startdate , '1 years'),
         'review' => $this->faker->text
