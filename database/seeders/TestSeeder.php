@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Database\Factories\StackFactory;
 
-class UnitTestSeeder extends Seeder
+class TestSeeder extends Seeder
 {
     /**
      * Run the database seeds.

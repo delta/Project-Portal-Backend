@@ -14,13 +14,9 @@ class AddStartdateAndEnddateAndRemoveDeadlineFromProjectsTable extends Migration
     public function up()
     {
         Schema::table('projects', function (Blueprint $table) {
-
-            if (app()->environment() !== 'testing') {
-                $table->date('startdate')->after('max_member_count')->nullable();
-			    $table->date('enddate')->after('startdate')->nullable();
-                $table->dropColumn('deadline');
-            }
-
+            $table->date('startdate')->after('max_member_count')->nullable();
+            $table->date('enddate')->after('startdate')->nullable();
+            $table->dropColumn('deadline');
         });
     }
 
@@ -32,13 +28,9 @@ class AddStartdateAndEnddateAndRemoveDeadlineFromProjectsTable extends Migration
     public function down()
     {
         Schema::table('projects', function (Blueprint $table) {
-
-            if (app()->environment() !== 'testing') {
-                $table->dropColumn('startdate');
-                $table->dropColumn('enddate');
-                $table->date('deadline')->nullable();
-            }
-
+            $table->dropColumn('startdate');
+            $table->dropColumn('enddate');
+            $table->date('deadline')->nullable();
         });
     }
 }

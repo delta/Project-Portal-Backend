@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\Response;
 use Tests\TestCase;
 
 use App\Models\Project;
@@ -12,41 +13,38 @@ use Laravel\Passport\Passport;
 
 class AddProjectsTest extends TestCase
 {
-    private $existingProject;
-    private $newProjectPostData;
-    private $users;
+    private array $projectData;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->existingProject = Project::factory()->create();
-
-        $this->newProjectPostData = Project::factory()->make()->toArray();
-        $this->newProjectPostData['stacks'] = [1, 2];
-        $this->newProjectPostData['status'] = 1;
-        $this->newProjectPostData['type'] = 1;
-        $this->newProjectPostData['enddate'] = '2021-06-24 00:00:00';
-        $this->newProjectPostData['startdate'] = '2021-06-21 00:00:00';
-
-        $this->users = User::factory()->count(3)->create();
+        $this->projectData = Project::factory()->make()->toArray();
+        $this->projectData['stacks'] = [1, 2];
+        $this->projectData['status'] = 1;
+        $this->projectData['type'] = 1;
+        $this->projectData['enddate'] = '2021-06-24 00:00:00';
+        $this->projectData['startdate'] = '2021-06-21 00:00:00';
     }
 
     /** @test */
     public function add_project_route_is_guarded()
     {
         $this->post('api/projects/add')
-            ->assertStatus(401);
+            ->assertUnauthorized();
     }
 
     /** @test */
     public function projects_can_be_added()
     {
-        Passport::actingAs($this->users[0]);
+        $newProjectPostData = $this->projectData;
+        $author = User::factory()->create();
+
+        Passport::actingAs($author);
         $this->post(
             'api/projects/add',
-            $this->newProjectPostData
-        )->assertStatus(200)
+            $newProjectPostData
+        )->assertOk()
             ->assertJson([
                 'message' => 'Project created successfully!',
             ]);
@@ -55,16 +53,19 @@ class AddProjectsTest extends TestCase
     /** @test */
     public function user_who_added_the_project_becomes_author()
     {
-        Passport::actingAs($this->users[0]);
+        $newProjectPostData = $this->projectData;
+        $author = User::factory()->create();
+
+        Passport::actingAs($author);
         $this->post(
             'api/projects/add',
-            $this->newProjectPostData
-        )->assertStatus(200)
+            $newProjectPostData
+        )->assertOk()
             ->assertJson([
                 'message' => 'Project created successfully!',
             ]);
         $this->assertEquals(
-            $this->users[0]->projects()->first()->pivot->role,
+            $author->projects()->first()->pivot->role,
             'AUTHOR'
         );
     }
@@ -72,41 +73,62 @@ class AddProjectsTest extends TestCase
     /** @test */
     public function users_can_be_added_with_projects()
     {
-        $this->newProjectPostData['users'] = [
+        $author = User::factory()->create();
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
+
+        $newProjectPostData = $this->projectData;
+        $newProjectPostData['users'] = [
             [
-                "id" => $this->users[1]->id,
+                "id" => $maintainer->id,
                 "role" => "MAINTAINER"
             ],
             [
-                "id" => $this->users[2]->id,
+                "id" => $developer->id,
                 "role" => "DEVELOPER"
             ]
         ];
-        Passport::actingAs($this->users[0]);
+
+        Passport::actingAs($author);
         $this->post(
             'api/projects/add',
-            $this->newProjectPostData
-        )->assertStatus(200)
+            $newProjectPostData
+        )->assertOk()
             ->assertJson([
                 'message' => 'Project created successfully!',
             ]);
+
+        $addedProject = Project::all()->last();
         $this->assertContains(
-            2,
-            $this->users[1]->projects()->get()->pluck('id')
+            $addedProject->id,
+            $author->projects()->get()->pluck('id')
         );
+        $this->assertContains(
+            $addedProject->id,
+            $maintainer->projects()->get()->pluck('id')
+        );
+        $this->assertContains(
+            $addedProject->id,
+            $developer->projects()->get()->pluck('id')
+        );
+
     }
 
     /** @test */
     public function new_project_cannot_have_existing_repo_link()
     {
-        $this->newProjectPostData['repo_link'] =
-            $this->existingProject->repo_link;
+        $existingProject = Project::factory()->create();
+        $author = User::factory()->create();
 
-        Passport::actingAs($this->users[0]);
+        $newProjectPostData = $this->projectData;
+        $newProjectPostData['repo_link'] =
+            $existingProject->repo_link;
+
+        Passport::actingAs($author);
         $this->post(
             'api/projects/add',
-            $this->newProjectPostData
-        )->assertStatus(422)
+            $newProjectPostData
+        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJson([
                 'message' => 'The given data was invalid.',
                 'errors' => [

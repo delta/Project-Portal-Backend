@@ -30,68 +30,55 @@ class ProjectModelTest extends TestCase
     /** @test */
     public function project_can_have_users()
     {
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
 
-        $this->project->users()->syncWithoutDetaching([
-            $this->users[0]->id =>
-            ['role' => 'MAINTAINER'],
-            $this->users[1]->id =>
-            ['role' => 'DEVELOPER']
+        $project = Project::factory()->create();
+
+        $project->users()->syncWithoutDetaching([
+            $maintainer->id => ['role' => 'MAINTAINER'],
+            $developer->id => ['role' => 'DEVELOPER']
         ]);
-        $firstUserRole = $this->project->users()->first()->pivot->role;
-        $this->assertEquals($firstUserRole, 'MAINTAINER');
+        $firstUserRole = $project->users()->first()->pivot->role;
+        $this->assertEquals('MAINTAINER', $firstUserRole);
     }
 
     /** @test */
     public function roles_can_be_updated_for_project_members()
     {
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
 
-        $this->project->users()->syncWithoutDetaching([
-            $this->users[1]->id =>
-            ['role' => 'MAINTAINER']
+        $project = Project::factory()->create();
+
+        $project->users()->syncWithoutDetaching([
+            $maintainer->id => ['role' => 'MAINTAINER']
         ]);
-        $response = $this->project->users()->syncWithoutDetaching([
-            $this->users[1]->id =>
-            ['role' => 'DEVELOPER']
+
+        $convertedToDeveloper = $maintainer;
+        $response = $project->users()->syncWithoutDetaching([
+            $convertedToDeveloper->id => ['role' => 'DEVELOPER']
         ]);
         $this->assertCount(1, $response['updated']);
-        $this->assertEquals($this->project->users()->first()->pivot->role, 'DEVELOPER');
+        $this->assertEquals($project->users()->first()->pivot->role, 'DEVELOPER');
     }
 
 
     /** @test */
     public function no_duplicate_user_role_pair_per_project()
     {
+        $author = User::factory()->create();
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
 
-        $this->project->users()->syncWithoutDetaching([
-            $this->users[0]->id =>
-            ['role' => 'AUTHOR'],
-            $this->users[1]->id =>
-            ['role' => 'MAINTAINER'],
-            $this->users[1]->id =>
-            ['role' => 'MAINTAINER'],
-            $this->users[1]->id =>
-            ['role' => 'DEVELOPER']
+        $project = Project::factory()->create();
+
+        $project->users()->syncWithoutDetaching([
+            $author->id => ['role' => 'AUTHOR'],
+            $maintainer->id => ['role' => 'MAINTAINER'],
+            $maintainer->id => ['role' => 'MAINTAINER'],
+            $developer->id => ['role' => 'DEVELOPER']
         ]);
-        $this->assertCount(2, $this->project->users()->get());
-    }
-
-    /** @test */
-    public function feedbacks_can_be_added_to_projects()
-    {
-
-        $this->project->users()->syncWithoutDetaching([
-            $this->users[2]->id =>
-            ['role' => 'DEVELOPER'],
-            $this->users[3]->id =>
-            ['role' => 'DEVELOPER']
-        ]);
-        $this->project->feedbacks()->saveMany(
-            Feedback::factory()->count(3)->create([
-                'project_id' => $this->project->id,
-                'sender_id' => $this->users[2]->id,
-                'receiver_id' => $this->users[3]->id
-            ])
-        );
-        $this->assertCount(3, $this->project->feedbacks()->get());
+        $this->assertCount(3, $project->users()->get());
     }
 }

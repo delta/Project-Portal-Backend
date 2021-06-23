@@ -27,3 +27,8 @@
 7. Run Migrations - `php artisan migrate`
 8. Run - `php artisan passport:install`
 9. Start the Server - `php artisan serve`
+
+### Local Testing
+
+1. Create the test database - `php artisan testdb:create`
+2. Run the tests - `php artisan test`

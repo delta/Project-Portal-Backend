@@ -36,9 +36,13 @@ return [
     'connections' => [
 
         'testing' => [
-            'driver' => 'sqlite',
-            'database' =>':memory:',
-            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' =>'project_portal_test',
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
         ],
 
         'sqlite' => [
