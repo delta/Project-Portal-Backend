@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Http\Response;
 use Tests\TestCase;
 
 use App\Models\Project;
@@ -10,29 +11,15 @@ use Laravel\Passport\Passport;
 
 class EditProjectsTest extends TestCase
 {
-    private $project;
-    private $users, $developer, $maintainer, $author;
-
-
-    public function setUp(): void
+    private function get_post_data_from($project)
     {
-        parent::setUp();
-
-        $this->project = Project::factory()->create();
-        $this->users = User::factory()->count(5)->create();
-
-        $this->developer = $this->users[0];
-        $this->maintainer = $this->users[1];
-        $this->author = $this->users[2];
-
-        $this->project->users()->syncWithoutDetaching([
-            $this->developer->id =>
-            ['role' => 'DEVELOPER'],
-            $this->maintainer->id =>
-            ['role' => 'MAINTAINER'],
-            $this->author->id =>
-            ['role' => 'AUTHOR']
-        ]);
+        $data = $project->toArray();
+        $data['stacks'] = [1, 2];
+        $data['status'] = 1;
+        $data['type'] = 1;
+        $data['enddate'] = '2021-06-24 00:00:00';
+        $data['startdate'] = '2021-06-21 00:00:00';
+        return $data;
     }
 
     /** @test */
@@ -45,188 +32,241 @@ class EditProjectsTest extends TestCase
     /** @test */
     public function projects_can_be_edited()
     {
-        $data = $this->project->toArray();
-        $data['max_member_count'] = 3;
-        $data['stacks'] = [1, 2];
-        $data['status'] = 1;
-        $data['type'] = 1;
-        $data['enddate'] = '2021-06-24 00:00:00';
-        $data['startdate'] = '2021-06-21 00:00:00';
+        $author = User::factory()->create();
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
 
-        Passport::actingAs($this->maintainer);
+        $NAME_BEFORE_EDIT = 'Test Project 1';
+        $NAME_AFTER_EDIT = 'Test Project 2';
+
+        $project = Project::factory()->create([
+            'name' => $NAME_BEFORE_EDIT
+        ]);
+        $project->users()->syncWithoutDetaching([
+            $developer->id => ['role' => 'DEVELOPER'],
+            $maintainer->id => ['role' => 'MAINTAINER'],
+            $author->id => ['role' => 'AUTHOR']
+        ]);
+
+        $this->assertEquals(
+            $NAME_BEFORE_EDIT,
+            $project->name
+        );
+
+        $data = $this->get_post_data_from($project);
+        $data['name'] = $NAME_AFTER_EDIT;
+
+        Passport::actingAs($maintainer);
         $this->post(
-            'api/projects/1/edit',
+            'api/projects/' . $project->id . '/edit',
             $data
-        )->assertStatus(200)
+        )->assertOk()
             ->assertJson([
                 'message' => 'Project edited successfully!'
             ]);
 
-        $this->project->refresh();
+        $project->refresh();
         $this->assertEquals(
-            1,
-            $this->project->type->id
-        );
-
-        $this->assertEquals(
-            1,
-            $this->project->status->id
+            $NAME_AFTER_EDIT,
+            $project->name
         );
     }
 
     /** @test */
     public function authors_and_maintainers_can_edit_their_project()
     {
-        $data = $this->project->toArray();
-        $data['max_member_count'] = 3;
-        $data['stacks'] = [1, 2];
-        $data['status'] = 1;
-        $data['type'] = 1;
-        $data['enddate'] = '2021-06-24 00:00:00';
-        $data['startdate'] = '2021-06-21 00:00:00';
+        $author = User::factory()->create();
+        $maintainer = User::factory()->create();
 
-        Passport::actingAs($this->maintainer);
+        $NAME_BEFORE_EDIT = 'Test Project 1';
+        $NAME_AFTER_EDIT_1 = 'Test Project 2';
+        $NAME_AFTER_EDIT_2 = 'Test Project 3';
+
+        $project = Project::factory()->create([
+            'name' => $NAME_BEFORE_EDIT
+        ]);
+        $project->users()->syncWithoutDetaching([
+            $maintainer->id => ['role' => 'MAINTAINER'],
+            $author->id => ['role' => 'AUTHOR']
+        ]);
+
+        $this->assertEquals(
+            $NAME_BEFORE_EDIT,
+            $project->name
+        );
+
+        $data = $this->get_post_data_from($project);
+        $data['name'] = $NAME_AFTER_EDIT_1;
+
+        Passport::actingAs($maintainer);
         $this->post(
-            'api/projects/1/edit',
+            'api/projects/' . $project->id . '/edit',
             $data
-        )->assertStatus(200)
+        )->assertOk()
             ->assertJson([
                 'message' => 'Project edited successfully!'
             ]);
 
-        Passport::actingAs($this->author);
+        $project->refresh();
+        $this->assertEquals(
+            $NAME_AFTER_EDIT_1,
+            $project->name
+        );
+
+        $data['name'] = $NAME_AFTER_EDIT_2;
+
+        Passport::actingAs($author);
         $this->post(
-            'api/projects/1/edit',
+            'api/projects/' . $project->id . '/edit',
             $data
-        )->assertStatus(200)
+        )->assertOk()
             ->assertJson([
                 'message' => 'Project edited successfully!'
             ]);
+
+        $project->refresh();
+        $this->assertEquals(
+            $NAME_AFTER_EDIT_2,
+            $project->name
+        );
     }
 
     /** @test */
     public function developers_cannot_edit_their_project()
     {
-        $data = $this->project->toArray();
-        $data['max_member_count'] = 3;
-        $data['stacks'] = [1, 2];
-        $data['status'] = 1;
-        $data['type'] = 1;
-        $data['enddate'] = '2021-06-24 00:00:00';
-        $data['startdate'] = '2021-06-21 00:00:00';
+        $author = User::factory()->create();
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
 
-        Passport::actingAs($this->developer);
+        $NAME_BEFORE_EDIT = 'Test Project 1';
+        $NAME_AFTER_EDIT = 'Test Project 2';
+
+        $project = Project::factory()->create([
+            'name' => $NAME_BEFORE_EDIT
+        ]);
+        $project->users()->syncWithoutDetaching([
+            $developer->id => ['role' => 'DEVELOPER'],
+            $maintainer->id => ['role' => 'MAINTAINER'],
+            $author->id => ['role' => 'AUTHOR']
+        ]);
+
+        $this->assertEquals(
+            $NAME_BEFORE_EDIT,
+            $project->name
+        );
+
+        $data = $this->get_post_data_from($project);
+        $data['name'] = $NAME_AFTER_EDIT;
+
+        Passport::actingAs($developer);
         $this->post(
-            'api/projects/1/edit',
+            'api/projects/' . $project->id . '/edit',
             $data
-        )->assertStatus(403)
+        )->assertForbidden()
             ->assertJson([
                 'message' => 'You are not allowed to edit this project!'
             ]);
+
+        $this->assertEquals(
+            $NAME_BEFORE_EDIT, // Nothing has changed
+            $project->name
+        );
     }
 
     /** @test */
     public function users_can_be_added_to_project()
     {
-        $data = $this->project->toArray();
-        $data['max_member_count'] = 5;
-        $data['stacks'] = [1, 2];
-        $data['status'] = 1;
-        $data['type'] = 1;
-        $data['enddate'] = '2021-06-24 00:00:00';
-        $data['startdate'] = '2021-06-21 00:00:00';
+        $author = User::factory()->create();
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
+
+        $project = Project::factory()->create();
+        $project->users()->syncWithoutDetaching([
+            $author->id => ['role' => 'AUTHOR']
+        ]);
+
+        $this->assertCount(
+            1,
+            $project->users()->get()
+        );
+
+        $data = $this->get_post_data_from($project);
         $data['users'] = [
-            [
-                'id' => $this->developer->id,
-                'role' => 'DEVELOPER'
-            ],
-            [
-                'id' => $this->maintainer->id,
-                'role' => 'MAINTAINER'
-            ],
-            [
-                'id' => $this->users[3]->id,
-                'role' => 'DEVELOPER'
-            ],
-            [
-                'id' => $this->users[4]->id,
-                'role' => 'MAINTAINER'
-            ],
+            ['id' => $developer->id, 'role' => 'DEVELOPER'],
+            ['id' => $maintainer->id, 'role' => 'MAINTAINER']
         ];
 
-        Passport::actingAs($this->maintainer);
+        Passport::actingAs($author);
         $this->post(
-            'api/projects/1/edit',
+            'api/projects/' . $project->id . '/edit',
             $data
-        )->assertStatus(200)
+        )->assertOk()
             ->assertJson([
                 'message' => 'Project edited successfully!'
             ]);
 
         $this->assertCount(
-            5,
-            $this->project->users()->get()
+            3,
+            $project->users()->get()
         );
     }
 
     /** @test */
     public function users_roles_in_project_can_be_modified()
     {
-        $data = $this->project->toArray();
-        $data['max_member_count'] = 3;
-        $data['stacks'] = [1, 2];
-        $data['status'] = 1;
-        $data['type'] = 1;
-        $data['enddate'] = '2021-06-24 00:00:00';
-        $data['startdate'] = '2021-06-21 00:00:00';
+        $author = User::factory()->create();
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
+
+        $project = Project::factory()->create();
+        $project->users()->syncWithoutDetaching([
+            $developer->id => ['role' => 'DEVELOPER'],
+            $maintainer->id => ['role' => 'MAINTAINER'],
+            $author->id => ['role' => 'AUTHOR']
+        ]);
+
+        $oldDeveloperNewMaintainer = $developer;
+        $data = $this->get_post_data_from($project);
         $data['users'] = [
-            [
-                'id' => $this->maintainer->id,
-                'role' => 'MAINTAINER'
-            ],
-            [
-                'id' => $this->developer->id,
-                'role' => 'MAINTAINER'
-            ],
+            ['id' => $maintainer->id, 'role' => 'MAINTAINER'],
+            ['id' => $oldDeveloperNewMaintainer->id, 'role' => 'MAINTAINER'],
         ];
 
-        Passport::actingAs($this->maintainer);
+        Passport::actingAs($maintainer);
         $this->post(
-            'api/projects/1/edit',
+            'api/projects/' . $project->id . '/edit',
             $data
-        )->assertStatus(200)
+        )->assertOk()
             ->assertJson([
                 'message' => 'Project edited successfully!'
             ]);
 
-        $this->assertCount(
-            2,
-            $this->project->users()->wherePivot('role', 'MAINTAINER')->get()
+        $this->assertEquals(
+            $oldDeveloperNewMaintainer->projects()->first()->pivot->role,
+            'MAINTAINER'
         );
     }
 
     /** @test */
     public function author_cannot_have_any_other_role()
     {
-        $data = $this->project->toArray();
-        $data['max_member_count'] = 3;
-        $data['stacks'] = [1, 2];
-        $data['status'] = 1;
-        $data['type'] = 1;
-        $data['enddate'] = '2021-06-24 00:00:00';
-        $data['startdate'] = '2021-06-21 00:00:00';
+        $author = User::factory()->create();
+
+        $project = Project::factory()->create();
+        $project->users()->syncWithoutDetaching([
+            $author->id => ['role' => 'AUTHOR']
+        ]);
+
+        $data = $this->get_post_data_from($project);
         $data['users'] = [
-            [
-                'id' => $this->author->id,
-                'role' => 'MAINTAINER'
-            ],
+            ['id' => $author->id, 'role' => 'MAINTAINER'],
         ];
 
-        Passport::actingAs($this->maintainer);
+        Passport::actingAs($author);
         $this->post(
-            'api/projects/1/edit',
+            'api/projects/' . $project->id . '/edit',
             $data
-        )->assertStatus(422)
+        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJson([
                 'message' => 'The given data was invalid.',
                 'errors' => [

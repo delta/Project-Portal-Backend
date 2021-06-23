@@ -13,49 +13,30 @@ use Laravel\Passport\Passport;
 
 class DeleteProjectsTest extends TestCase
 {
-    private $project;
-    private $users, $developer, $maintainer, $author;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->project = Project::factory()->create([
-            'status_id' => 1,
-            'type_id' => 1
-        ]);
-        $this->project->stacks()->attach(
-            Stack::find(1)->id
-        );
-        $this->users = User::factory()->count(3)->create();
-
-        $this->developer = $this->users[0];
-        $this->maintainer = $this->users[1];
-        $this->author = $this->users[2];
-
-        $this->project->users()->syncWithoutDetaching([
-            $this->developer->id =>
-            ['role' => 'DEVELOPER'],
-            $this->maintainer->id =>
-            ['role' => 'MAINTAINER'],
-            $this->author->id =>
-            ['role' => 'AUTHOR']
-        ]);
-    }
-
     /** @test */
     public function delete_project_route_is_guarded()
     {
         $this->post('api/projects/1/delete')
-            ->assertStatus(401);
+            ->assertUnauthorized();
     }
 
     /** @test */
     public function only_authors_can_delete_the_project()
     {
-        Passport::actingAs($this->author);
-        $this->post('api/projects/1/delete')
-            ->assertStatus(200)
+        $author = User::factory()->create();
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
+
+        $project = Project::factory()->create();
+        $project->users()->syncWithoutDetaching([
+            $developer->id => ['role' => 'DEVELOPER'],
+            $maintainer->id => ['role' => 'MAINTAINER'],
+            $author->id => ['role' => 'AUTHOR']
+        ]);
+
+        Passport::actingAs($author);
+        $this->post('api/projects/' . $project->id . '/delete')
+            ->assertOk()
             ->assertJson([
                 'message' => 'Project deleted successfully!'
             ]);
@@ -64,51 +45,86 @@ class DeleteProjectsTest extends TestCase
     /** @test */
     public function maintainers_and_developers_cannot_delete_project()
     {
-        Passport::actingAs($this->maintainer);
-        $this->post('api/projects/1/delete')
-            ->assertStatus(403);
+        $author = User::factory()->create();
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
 
-        Passport::actingAs($this->developer);
-        $this->post('api/projects/1/delete')
-            ->assertStatus(403);
+        $project = Project::factory()->create();
+        $project->users()->syncWithoutDetaching([
+            $developer->id => ['role' => 'DEVELOPER'],
+            $maintainer->id => ['role' => 'MAINTAINER'],
+            $author->id => ['role' => 'AUTHOR']
+        ]);
+
+        Passport::actingAs($maintainer);
+        $this->post('api/projects/' . $project->id . '/delete')
+            ->assertForbidden();
+
+        Passport::actingAs($developer);
+        $this->post('api/projects/' . $project->id . '/delete')
+            ->assertForbidden();
     }
 
     /** @test */
     public function project_can_be_deleted()
     {
-        Passport::actingAs($this->author);
-        $this->post('api/projects/1/delete')
-            ->assertStatus(200)
+        $author = User::factory()->create();
+        $maintainer = User::factory()->create();
+        $developer = User::factory()->create();
+
+        $project = Project::factory()->create();
+        $project->users()->syncWithoutDetaching([
+            $developer->id => ['role' => 'DEVELOPER'],
+            $maintainer->id => ['role' => 'MAINTAINER'],
+            $author->id => ['role' => 'AUTHOR']
+        ]);
+
+        $this->assertContains(
+            $project->id,
+            $author->projects()->get()->pluck('id')
+        );
+        $this->assertContains(
+            $project->id,
+            $maintainer->projects()->get()->pluck('id')
+        );
+
+        Passport::actingAs($author);
+        $this->post('api/projects/' . $project->id . '/delete')
+            ->assertOk()
             ->assertJson([
                 'message' => 'Project deleted successfully!'
             ]);
 
-        $this->assertEmpty(
-            $this->author->projects()->get()
+        $this->assertNotContains(
+            $project->id,
+            $author->projects()->get()->pluck('id')
         );
-        $this->assertEmpty(
-            Stack::find(1)->projects()->get()
-        );
-        $this->assertEmpty(
-            Status::find(1)->projects()->get()
-        );
-        $this->assertEmpty(
-            Type::find(1)->projects()->get()
+        $this->assertNotContains(
+            $project->id,
+            $maintainer->projects()->get()->pluck('id')
         );
     }
 
     /** @test */
     public function project_is_only_soft_deleted()
     {
-        Passport::actingAs($this->author);
-        $this->post('api/projects/1/delete')
-            ->assertStatus(200)
+        $author = User::factory()->create();
+
+        $project = Project::factory()->create();
+        $project->users()->syncWithoutDetaching([
+            $author->id =>
+                ['role' => 'AUTHOR']
+        ]);
+
+        Passport::actingAs($author);
+        $this->post('api/projects/' . $project->id . '/delete')
+            ->assertOk()
             ->assertJson([
                 'message' => 'Project deleted successfully!'
             ]);
 
         $this->assertSoftDeleted('projects', [
-            'id' => $this->project->id
+            'id' => $project->id
         ]);
     }
 }

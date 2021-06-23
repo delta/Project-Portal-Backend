@@ -14,27 +14,17 @@ class UserModelTest extends TestCase
      *
      */
 
-    private $project;
-    private $users;
-
-    public function setUp(): void
-    {
-
-        parent::setUp();
-
-        $this->project = Project::factory()->create();
-        $this->users = User::factory()->count(4)->create();
-    }
-
     /** @test */
     public function user_can_belong_to_a_project()
     {
+        $project = Project::factory()->create();
+        $user = User::factory()->create();
 
-        $this->users[0]->projects()->syncWithoutDetaching([
-            $this->project->id =>
+        $user->projects()->syncWithoutDetaching([
+            $project->id =>
             ['role' => 'DEVELOPER']
         ]);
-        $firstUserRole = $this->project->users()->first()->pivot->role;
+        $firstUserRole = $project->users()->first()->pivot->role;
         $this->assertEquals($firstUserRole, 'DEVELOPER');
     }
 }
