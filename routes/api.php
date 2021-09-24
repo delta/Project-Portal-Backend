@@ -42,3 +42,6 @@ Route::prefix('projects')->middleware('auth:api')->group(function (){
     Route::post('{project_id}/feedback/edit/', 'FeedbackController@edit');
     Route::post('{project_id}/review/', 'FeedbackController@review');
 });
+
+// delta pages
+Route::get('deltapages', 'ProjectController@deltaPages');

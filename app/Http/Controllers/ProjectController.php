@@ -31,6 +31,24 @@ class ProjectController extends Controller
     }
 
     /**
+     * Get projects for delta pages
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deltaPages()
+    {
+        return response()->json([
+            'message' => 'Success!',
+            'data' => [
+                'project' => Project::get(['id', 'name as title', 'description as desc'])->each(function ($project) {
+                    $project['developers'] = $project->users()->wherePivotIn('role', ['AUTHOR', 'MAINTAINER', 'DEVELOPER'])->get();
+                })
+            ]
+        ], 200);
+    }
+
+    /**
      * Show project of specific id.
      *
      * @param  \Illuminate\Http\Request  $request
